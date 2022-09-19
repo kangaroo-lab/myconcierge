@@ -1,0 +1,76 @@
+<head>
+  <!-- CSS only -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
+</head>
+</head>
+<style>
+    /* HEADER */
+    body{
+      padding: 0;
+      margin: 0%;
+    }
+    #header {
+      background-color: black;
+      height: 60px;
+      position: sticky;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+    }
+    #header #logo{
+      margin: 0%;
+      color: antiquewhite;
+      text-align: center;
+    }
+    #header #buttons{
+      display: flex;
+    }
+    #header #icons{
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+    #header i {
+      font-size: 20px;
+      margin: 10px;
+    }
+
+
+</style>
+<div id='header'>
+    <div class="header_content left" id="logo_div">
+      <h1 class="header_content left" id="logo">My Concerge</h1>
+    </div>
+    <div class="header_content right" id="buttons">
+      <div class="header_content right" id="icons">
+        <i class="bi bi-youtube" style="color:white"></i>
+        <i class="bi bi-twitter" style="color:white"></i>
+        <i class="bi bi-tiktok" style="color:white"></i>
+        <i class="bi bi-three-dots"id="hamburger"style="color:white"></i>
+      </div>
+    </div>
+</div>
+
+<script>
+$(function() {
+    $('.hamburger').click(function() {
+        $(this).toggleClass('active');
+
+        if ($(this).hasClass('active')) {
+            $('.globalMenuSp').addClass('active');
+        } else {
+            $('.globalMenuSp').removeClass('active');
+            }
+
+        });
+});
+//メニュー内を閉じておく
+$(function() {
+    $('.globalMenuSp a[href]').click(function() {
+        $('.globalMenuSp').removeClass('active');
+    $('.hamburger').removeClass('active');
+
+    });
+});
+
+</script>
