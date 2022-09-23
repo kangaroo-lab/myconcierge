@@ -19,6 +19,11 @@
     <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js'></script>
     <script src="js/config.js"></script>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
+
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,71 +35,156 @@
     }
     label > input[type="file"] {
         display:none; /* アップロードボタンのスタイルを無効にする */
+        width: 100%;
     }
     label {
         width: 100%;
     }
+    input[name="title"] {
+        width: 100%;
+        margin-top: 20px;
+        border: none;
+        margin-left: 10px;
+
+    }
+    #button_area{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
+    button{
+        width: 90%;
+    }
+    .tagify{
+        border:none;
+        margin-top: 20px;
+    }
 </style>
 <body>
+　<div id="header-input" class="ce-block__content">
+    <label class="btn btn-outline-secondary" id="sumnail_label">
+        サムネイルを選択してください
+        <input type="file" name="sumnail">
+    </label>
+    <input name='tags'class='ce-paragraph cdx-block'placeholder="ハッシュタグ(最大５個まで)" id="tag_input" value="" >
+    <input type="text"name="title"class="ce-paragraph cdx-block"placeholder='タイトルを決めてください'>
+ </div>
   <div id="editorjs"></div>
-  <script>
-    const ImageTool = window.ImageTool;
+  <div id="button_area" class="ce-block__content">
+    <button type="button"id='save' class="btn btn-outline-secondary ">ボタン</button>
+  </div>
 
-    const editor = new EditorJS({
-        holder : 'editorjs',
-        placeholder: 'Enter Card Content',
-        tools: {
-            Header,
-            list: {
-                class: List,
-                inlineToolbar: true
-            },
-            table: {
-                class: Table,
-                inlineToolbar: true
-            },
-            image: {
-                class: ImageTool,
-                config: {
-                    uploader: {
-                        async uploadByFile(file){
-                            const storageRef = firebase.storage().ref('article/'+file.name);
-                            var uploadTask = await storageRef.put(file);
-                            console.log("Uploaded successfully!", uploadTask);
-                            const downloadURL = await uploadTask.ref.getDownloadURL();
-                            console.log(downloadURL);
-                            return {
-                                success: 1,
-                                file: {
-                                    url: downloadURL
-                                }
-                            }
-
-                        },
-                    }
-                }
-                // class: SimpleImage
-            },
-            embed: {
-                class: Embed,
-                config: {
-                    services: {
-                        youtube: true,
-                        twitter: true,
-                    },
-                },
-            },
-            linkTool: {
-                class: LinkTool,
-                config: {
-                    endpoint: '', // Your backend endpoint for url data fetching,
-                }
-            },
-            delimiter: Delimiter,
-        },
-        autofocus: true
+<script>
+var input = document.querySelector('input[name=tags]'),
+    // init Tagify script on the above inputs
+    tagify = new Tagify(input,{
+        whitelist: [],
+        maxTags: 5,
+        dropdown: {
+            maxItems: 20,           // <- mixumum allowed rendered suggestions
+            classname: "tags-look", // <- custom classname for this dropdown, so it could be targeted
+            enabled: 0,             // <- show suggestions on focus
+            closeOnSelect: false    // <- do not hide the suggestions dropdown once an item has been selected
+        }
     });
-  </script>
+
+
+const sumnail_input = document.querySelector('input[name="sumnail"]')
+const title_input = document.querySelector('input[name="title"]')
+const ImageTool = window.ImageTool;
+
+const editor = new EditorJS({
+    holder : 'editorjs',
+    placeholder: 'Enter Card Content',
+    tools: {
+        header: {
+            class: Header
+        },
+        list: {
+            class: List,
+            inlineToolbar: true
+        },
+        table: {
+            class: Table,
+            inlineToolbar: true
+        },
+        image: {
+            class: ImageTool,
+            config: {
+                uploader: {
+                    async uploadByFile(file){
+                        const storageRef = firebase.storage().ref('article/'+file.name);
+                        var uploadTask = await storageRef.put(file);
+                        console.log("Uploaded successfully!", uploadTask);
+                        const downloadURL = await uploadTask.ref.getDownloadURL();
+                        console.log(downloadURL);
+                        return {
+                            success: 1,
+                            file: {
+                                url: downloadURL
+                            }
+                        }
+
+                    },
+                }
+            }
+            // class: SimpleImage
+        },
+        embed: {
+            class: Embed,
+            config: {
+                services: {
+                youtube: true,
+                coub: true
+                }
+            }
+        },
+        delimiter: Delimiter,
+    },
+    autofocus: true
+});
+
+const save = document.getElementById('save');
+save.addEventListener('click',click)
+const header_input = document.getElementById('header-input')
+const sumnail_label = document.getElementById('sumnail_label');
+
+sumnail_input.addEventListener('change',(e) => {
+    const file = e.target.files[0];
+    imagePut(file)
+        .then((url)=>{
+            const sumnail = document.createElement('img');
+            sumnail.setAttribute('src',url);
+            sumnail.setAttribute('id','sumnail')
+            header_input.replaceChild(sumnail,sumnail_label)
+        })
+})
+
+function click(){
+    const sumnail_url = document.getElementById('sumnail').getAttribute('src');
+    const title = title_input.value;
+    const tags = input.value;
+    editor.save().then((saveData)=>{
+        const ref = firebase.firestore().collection('post');
+        ref.add({
+            post : saveData,
+            sumnail : sumnail_url,
+            title : title,
+            tags : tags,
+            user : 'test-user'
+        }).then(()=>{
+            window.location.href = 'index.html'
+        })
+    })
+}
+
+async function imagePut(file){
+    const storageRef = firebase.storage().ref('sumnail/'+file.name);
+    var uploadTask = await storageRef.put(file);
+    const url = await uploadTask.ref.getDownloadURL();
+    return url
+}
+</script>
 </body>
 
 </html>

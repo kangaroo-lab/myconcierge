@@ -6,6 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Concerge</title>
   <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js'></script>
+  <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js'></script>
+  <script src="js/config.js"></script>
 </head>
 <body>
   <header></header>
@@ -15,7 +21,9 @@
     <div id="recommend_area"></div>
 
     <!-- new arrive -->
+    <div>
     <div id="newarrive_area"></div>
+
 
     <!-- only members -->
     <div id="membership_area"></div>
@@ -32,6 +40,32 @@
   <footer></footer>
 </body>
 <script>
+  const reco_a = document.getElementById('recommend_area');
+  const db = firebase.firestore();
+  const ref = db.collection('post');
+  const dataSet = [{
+    'title':'ちんこ',
+    'id':1222222,
+    sumnail:'ちんこ'
+  }]
+  const datas = ref.get().then((query)=>{
+    query.forEach(doc => {
+      const data = {
+        'title': doc.data().title,
+        'id' : doc.id,
+        'sumnail':doc.data().sumnail
+      }
+      dataSet.push(data)
+    })
+    dataSet.forEach(data=>{
+      const link = document.createElement('a');
+      link.setAttribute('href','post.html?id='+data.id);
+      link.innerText = data.title;
+      reco_a.appendChild(link)
+    })
+  })
+
+
   $(function(){
     $('header').load("components/header.html")
   })
