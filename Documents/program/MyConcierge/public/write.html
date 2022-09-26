@@ -61,6 +61,7 @@
     }
 </style>
 <body>
+<header></header>
 　<div id="header-input" class="ce-block__content">
     <label class="btn btn-outline-secondary" id="sumnail_label">
         サムネイルを選択してください
@@ -73,8 +74,20 @@
   <div id="button_area" class="ce-block__content">
     <button type="button"id='save' class="btn btn-outline-secondary ">ボタン</button>
   </div>
-
+<footer></footer>
 <script>
+$(function(){
+    $('header').load("components/header.html");
+    $('footer').load("components/footer.html");
+})
+let uid = ''
+firebase.auth().onAuthStateChanged((user)=>{
+    if(user){
+        uid = user.uid
+    }else{
+        window.location.href = 'login.html'
+    }
+})
 var input = document.querySelector('input[name=tags]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input,{
