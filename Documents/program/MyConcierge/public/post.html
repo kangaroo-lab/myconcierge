@@ -100,13 +100,13 @@
         case "header":
           content = document.createElement('h'+doc.data.level);
           content.setAttribute('class','post-text')
-          content.innerText = doc.data.text;
+          content.innerHTML = doc.data.text;
           result.push(content);
           break
         case "paragraph":
           content = document.createElement('p');
           content.setAttribute('class','post-text')
-          content.innerText = doc.data.text;
+          content.innerHTML = doc.data.text;
           result.push(content)
           break;
         case "image":
@@ -117,10 +117,13 @@
           break;
         case "list":
           content = document.createElement('ul');
-          for(item in items){
+          console.log(doc.data.items)
+          doc.data.items.forEach((text)=>{
+            console.log(text)
             const li = document.createElement('li');
+            li.innerHTML = text
             content.appendChild(li)
-          }
+          })
           result.push(content)
           break;
         case  "delimiter":
