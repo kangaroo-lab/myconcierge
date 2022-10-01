@@ -1,5 +1,11 @@
 <head>
   <!-- CSS only -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js'></script>
+  <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js'></script>
+  <script src="js/config.js"></script>
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
@@ -16,6 +22,7 @@
       display: flex;
       flex-direction: row;
       justify-content: space-around;
+      z-index: 2000;
     }
     #header #logo{
       margin: 0%;
@@ -34,7 +41,10 @@
       font-size: 20px;
       margin: 10px;
     }
-
+    header button{
+      height: 10vh;
+      margin: 2vh 2vw;
+    }
 
 </style>
 <div id='header'>
@@ -52,6 +62,27 @@
 </div>
 
 <script>
+let uid = '';
+
+firebase.auth().onAuthStateChanged((user)=>{
+    if(user){
+        uid = user.uid
+        const button = document.createElement('button');
+        button.innerText = 'ログアウト';
+        button.setAttribute('class',' type="button" class="btn btn-outline-secondary"')
+        const icons = document.getElementById('icons');
+        icons.appendChild(button)
+    }else{
+        const button = document.createElement('button');
+        button.innerText = 'ログイン';
+        button.setAttribute('onclick','login()')
+        button.setAttribute('class',' type="button" class="btn btn-outline-secondary"')
+        const icons = document.getElementById('icons');
+        icons.appendChild(button)
+    }
+});
+
+
 $(function() {
     $('.hamburger').click(function() {
         $(this).toggleClass('active');

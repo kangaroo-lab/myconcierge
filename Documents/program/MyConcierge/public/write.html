@@ -51,6 +51,7 @@
         display: flex;
         flex-direction: row;
         justify-content: center;
+        padding-bottom: 30px;
     }
     button{
         width: 90%;
@@ -78,19 +79,23 @@
     <button type="button"id='save' class="btn btn-outline-secondary ">ボタン</button>
   </div>
 <footer></footer>
+
 <script>
 $(function(){
     $('header').load("components/header.html");
     $('footer').load("components/footer.html");
-})
-let uid = ''
+});
+
+let uid = '';
+
 firebase.auth().onAuthStateChanged((user)=>{
     if(user){
         uid = user.uid
     }else{
         window.location.href = 'login.html'
     }
-})
+});
+
 var input = document.querySelector('input[name=tags]'),
     // init Tagify script on the above inputs
     tagify = new Tagify(input,{
@@ -105,8 +110,8 @@ var input = document.querySelector('input[name=tags]'),
     });
 
 
-const sumnail_input = document.querySelector('input[name="sumnail"]')
-const title_input = document.querySelector('input[name="title"]')
+const sumnail_input = document.querySelector('input[name="sumnail"]');
+const title_input = document.querySelector('input[name="title"]');
 const ImageTool = window.ImageTool;
 
 const editor = new EditorJS({
@@ -161,8 +166,8 @@ const editor = new EditorJS({
 });
 
 const save = document.getElementById('save');
-save.addEventListener('click',click)
-const header_input = document.getElementById('header-input')
+save.addEventListener('click',click);
+const header_input = document.getElementById('header-input');
 const sumnail_label = document.getElementById('sumnail_label');
 
 sumnail_input.addEventListener('change',(e) => {
@@ -174,13 +179,22 @@ sumnail_input.addEventListener('change',(e) => {
             sumnail.setAttribute('id','sumnail')
             header_input.replaceChild(sumnail,sumnail_label)
         })
-})
+});
 
 function click(){
     const sumnail_url = document.getElementById('sumnail').getAttribute('src');
     const title = title_input.value;
     const tags = input.value;
     editor.save().then((saveData)=>{
+        saveData.blocks.forEach(elem=>{
+            if(elem.type=="table"){
+                const newData = {}
+                elem.data.content.forEach((content, i)=>{
+                    newData[i] = content
+                })
+                elem.data.content = newData
+            }
+        })
         const ref = firebase.firestore().collection('post');
         ref.add({
             post : saveData,

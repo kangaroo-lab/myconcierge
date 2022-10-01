@@ -17,34 +17,64 @@
   header{
     position:fixed;
     width: 100%;
+    z-index: 2000;
   }
   #fill{
-    padding: 150px 100px;
+    padding: 60px 250px 20px 250px;
   }
+
 </style>
 <body>
   <header></header>
+
+  <div id="recommend"></div>
+
   <div class="body fill" id="fill">
-    <!-- top-post -->
-    <div id="recommend_area"></div>
 
-    <!-- new arrive -->
-    <div id="newarrive_area"></div>
+    <div id="newarrive"></div>
 
-
-    <!-- only members -->
-    <div id="membership_area"></div>
-
-    <!-- Genre post -->
-    <div id="genrepost_area"></div>
-
-    <!-- YouTube -->
-    <div id="youtube_area"></div>
+    <div id="membership"></div>
   </div>
+  <div id="genre"></div>
+  <div id="youtube"></div>
   <footer></footer>
 </body>
 <script>
-  const reco_a = document.getElementById('recommend_area');
+  let uid = '';
+
+  firebase.auth().onAuthStateChanged((user)=>{
+      if(user){
+          uid = user.uid
+          const button = document.createElement('button');
+          button.innerText = 'ログアウト';
+          button.setAttribute('onclick','logout()')
+          button.setAttribute('class',"btn btn-outline-secondary")
+          const icons = document.getElementById('icons');
+          icons.appendChild(button)
+      }else{
+          const button = document.createElement('button');
+          button.innerText = 'ログイン';
+          button.setAttribute('onclick','login()')
+          button.setAttribute('class',"btn btn-outline-secondary")
+          const icons = document.getElementById('icons');
+          icons.appendChild(button)
+      }
+  });
+
+  function logout(){
+    firebase.auth().signOut()
+      .then(()=>{
+        console.log('ログアウト')
+      }).catch(e=>{
+        console.log(e.message)
+      })
+  }
+
+  function login(){
+    window.location.href = 'login.html';
+  }
+
+  const reco_a = document.getElementById('fill');
   const db = firebase.firestore();
   const ref = db.collection('post');
   const dataSet = []
@@ -70,8 +100,12 @@
 
   $(function(){
     $('header').load("components/header.html");
-    $('footer').load("components/footer.html")
+    $('footer').load("components/footer.html");
+    $('#recommend').load("components/top_recommend.html");
+    $('#newarrive').load("components/post_table_newArrive.html");
+    $('#membership').load("components/membership_contents.html");
+    $('#genre').load("components/top_genre.html");
+    $('#youtube').load('components/top_youtube.html')
   })
-
 </script>
 </html>

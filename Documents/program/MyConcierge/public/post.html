@@ -11,6 +11,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
   <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js'></script>
+  <script src='https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js'></script>
   <script src="js/config.js"></script>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
@@ -42,6 +43,9 @@
     width: 100%;
     margin: 20px 0;
   }
+  #post_contents{
+    padding: 60px 250px 20px 250px;
+  }
 </style>
 <body>
     <header></header>
@@ -52,16 +56,21 @@
       <div id='fill'>
         <div id='fill_index'style="width: 800px;text-align: center;margin-top: 10px;padding:50px 0 20px 0;border-top:0;border-bottom:0;"class="card">
           <div id='title_area'><h1 id='title'></h1></div>
-          <div id='basic_info_area' style="display: flex;padding: 0 20px;">
+          <div id='basic_info_area' style="display: flex;padding: 0 20px;flex-direction: row;justify-content: space-between;">
             <div id='basic_info_text'style='text-align:left;'>
               <p id='post_time'style='margin:0;font-size: x-small;'></p>
               <p id="user_name"style='margin:0;font-size: x-small;'></p>
+            </div>
+            <div id='button_area'style="display:right;right:0;">
             </div>
           </div>
           <div id='text_area'></div>
         </div>
       </div>
       <div id='post_area'></div>
+    </div>
+    <div id="post_contents">
+      <div id="newarrive"></div>
     </div>
     <footer></footer>
 </body>
@@ -71,6 +80,31 @@
   const url = new URL(location.href);
   const params = new URLSearchParams(url.search);
   const id = params.get('id');
+
+  let uid = '';
+
+  firebase.auth().onAuthStateChanged((user)=>{
+      if(user){
+          uid = user.uid
+          const button = document.createElement('button');
+          button.innerText = 'ログアウト';
+          button.setAttribute('class',"btn btn-outline-secondary")
+          const inner = document.getElementById('icons');
+          icons.appendChild(button)
+          const button_area = document.getElementById('button_area');
+          const edit_button = document.createElement('button');
+          edit_button.setAttribute('class',"btn btn-outline-secondary")
+          edit_button.innerText = '編集する';
+          button_area.appendChild(edit_button)
+      }else{
+          const button = document.createElement('button');
+          button.innerText = 'ログイン';
+          button.setAttribute('onclick','login()')
+          button.setAttribute('class',"btn btn-outline-secondary")
+          const icons = document.getElementById('icons');
+          icons.appendChild(button)
+      }
+  });
 
   const sumnail = document.getElementById('sumnail');
   const titleArea = document.getElementById('title');
@@ -117,9 +151,7 @@
           break;
         case "list":
           content = document.createElement('ul');
-          console.log(doc.data.items)
           doc.data.items.forEach((text)=>{
-            console.log(text)
             const li = document.createElement('li');
             li.innerHTML = text
             content.appendChild(li)
@@ -127,9 +159,22 @@
           result.push(content)
           break;
         case  "delimiter":
+          content = document.createElement('p');
+          content.setAttribute('class','post-text')
+          content.innerHTML = '<br>';
           result.push(content)
           break;
         case "table":
+          content = document.createElement('table');
+          Object.values(doc.data.content).forEach(elem=>{
+              const tr = document.createElement('tr');
+              elem.forEach(e=>{
+                  const td = document.createElement('td');
+                  td.innerHTML = e;
+                  tr.appendChild(td)
+              })
+              content.appendChild(tr)
+          })
           result.push(content)
           break;
         default:arguments
@@ -141,7 +186,8 @@
 
   $(function(){
     $('header').load("components/header.html");
-    $('footer').load("components/footer.html")
+    $('footer').load("components/footer.html");
+    $('#newarrive').load("components/post_table_newArrive.html");
   })
 </script>
 </html>
